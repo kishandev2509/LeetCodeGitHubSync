@@ -1,14 +1,12 @@
 class Solution:
     def numOfUnplacedFruits(self, fruits: List[int], baskets: List[int]) -> int:
-        visited = [False] * len(baskets)
-        unplaced = 0
+        n = len(baskets)
+        visited = [False] * n
+        placed = 0
         for fruit in fruits:
-            placed = False
-            for i in range(len(baskets)):
+            for i in range(n):
                 if not visited[i] and baskets[i] >= fruit:
                     visited[i] = True
-                    placed = True
+                    placed += 1
                     break
-            if not placed:
-                unplaced += 1
-        return unplaced
+        return n - placed
