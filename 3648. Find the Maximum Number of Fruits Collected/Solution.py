@@ -1,44 +1,37 @@
 class Solution:
     def maxCollectedFruits(self, fruits: List[List[int]]) -> int:
         n = len(fruits)
-
-        def getTopLeft() -> int:
-            return sum(fruits[i][i] for i in range(n))
-
-        def getTopRight() -> int:
-            # dp[i][j] := the number of fruits collected from (0, n - 1) to (i, j)
-            dp = [[0] * n for _ in range(n)]
-            dp[0][-1] = fruits[0][-1]
-            for x in range(n):
-                for y in range(n):
-                    if x >= y and (x, y) != (n - 1, n - 1):
-                        continue
-                    for dx, dy in [(1, -1), (1, 0), (1, 1)]:
-                        i = x - dx
-                        j = y - dy
-                        if i < 0 or i == n or j < 0 or j == n:
-                            continue
-                        if i < j < n - 1 - i:
-                            continue
-                        dp[x][y] = max(dp[x][y], dp[i][j] + fruits[x][y])
-            return dp[-1][-1]
-
-        def getBottomLeft() -> int:
-            # dp[i][j] := the number of fruits collected from (n - 1, 0) to (i, j)
-            dp = [[0] * n for _ in range(n)]
-            dp[-1][0] = fruits[-1][0]
-            for y in range(n):
-                for x in range(n):
-                    if x <= y and (x, y) != (n - 1, n - 1):
-                        continue
-                    for dx, dy in [(-1, 1), (0, 1), (1, 1)]:
-                        i = x - dx
-                        j = y - dy
-                        if i < 0 or i == n or j < 0 or j == n:
-                            continue
-                        if j < i < n - 1 - j:
-                            continue
-                        dp[x][y] = max(dp[x][y], dp[i][j] + fruits[x][y])
-            return dp[-1][-1]
-
-        return getTopLeft() + getTopRight() + getBottomLeft() - 2 * fruits[-1][-1]
+        dp = [[-1]*n for _ in range(n)]
+        def count_fruits(r, c, m, next_moves):
+            if r == c == n-1 :
+                return 0
+            if r == c or m == 0:
+                dp[r][c] = float("-inf")
+                return float("-inf")
+            if dp[r][c] != -1:
+                return dp[r][c]
+            max_fruits = -1
+            for nm in next_moves:
+                nr = r + nm[0]
+                nc = c + nm[1]
+                if not 0 <= nr < n > nc >= 0:
+                    continue
+                max_fruits = max(max_fruits,count_fruits(nr,nc,m-1,next_moves))
+            if max_fruits == -1:
+                dp[r][c] = float("-inf")
+                return float("-inf")
+            dp[r][c] =  max_fruits + fruits[r][c]
+            return max_fruits + fruits[r][c]
+        child1 = 0
+        for i in range(n):
+            child1 = child1 + fruits[i][i]
+            
+        child2_moves = [(1,-1),(1,0),(1,1)]
+        child3_moves = [(-1,1),(0,1),(1,1)]
+        
+        child2 = count_fruits(0,n-1,n-1,child2_moves)
+        dp = [[-1]*(n) for _ in range(n)]
+        child3 = count_fruits(n-1,0,n-1,child3_moves)
+        
+        max_fruits = child1 + child2 + child3
+        return int(max_fruits)
